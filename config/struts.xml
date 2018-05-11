@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<!-- 设置文件上传总大小  struts.multipart.maxSize=2097152 -->
+	<constant name="struts.multipart.maxSize" value="20971520"/>
+	
+	<package name="crm_ssh02" namespace="/" extends="struts-default">
+		
+		<!-- 拦截器设置 -->
+		<interceptors>
+			<interceptor name="userInteceptor" class="com.crm_ssh02.web.action.interceptor.UserInterceptor">
+			</interceptor>
+			<interceptor-stack name="strutsInterceptor">
+				<interceptor-ref name="defaultStack"/>
+			</interceptor-stack>
+		</interceptors>
+		
+		<!-- 全局页面跳转设置 -->
+		<global-results>
+			<result name="login">/login.jsp</result>
+		</global-results>
+		
+		<!-- 用户模块 -->
+		<action name="user_*" class="userAction" method="{1}">
+			<result name="loginOk">/index.jsp</result>
+			
+			<interceptor-ref name="userInteceptor">
+				<param name="excludeMethods">login,regist,checkCode</param>
+			</interceptor-ref>
+			<interceptor-ref name="strutsInterceptor"></interceptor-ref>
+		</action>
+		
+		<!-- 客户模块 -->
+		<action name="customer_*" class="customerAction" method="{1}">
+			<result name="initAddUI">/jsp/customer/add.jsp</result>
+			<result name="add" type="redirectAction">customer_findByPage.action</result>
+			<result name="page">/jsp/customer/list.jsp</result>
+			<result name="initEdit">/jsp/customer/edit.jsp</result>
+			<result name="edit" type="redirectAction">customer_findByPage.action</result>
+			<result name="delete" type="redirectAction">customer_findByPage.action</result>
+			<!-- 决定文件的上传类型 -->
+			<param name="fileUpload.allowedExtensions">.jpg,.txt,.png</param>
+			<interceptor-ref name="userInteceptor"></interceptor-ref>
+			<interceptor-ref name="strutsInterceptor"></interceptor-ref>
+		</action>
+		
+		<!-- 联系人模块 -->
+		<action name="linkman_*" class="linkmanAction" method="{1}">
+			<result name="initAddUI">/jsp/linkman/add.jsp</result>
+			<result name="page">/jsp/linkman/list.jsp</result>
+			<result name="add" type="redirectAction">linkman_findByPage.action</result>
+			<result name="initEdit">/jsp/linkman/edit.jsp</result>
+			<result name="edit" type="redirectAction">linkman_findByPage.action</result>
+			<result name="delete" type="redirectAction">linkman_findByPage.action</result>
+			<interceptor-ref name="userInteceptor"></interceptor-ref>
+			<interceptor-ref name="strutsInterceptor"></interceptor-ref>
+		</action>
+		
+		<!-- 字典模块 -->
+		<action name="dict_*" class="dictAction" method="{1}">
+			<interceptor-ref name="userInteceptor"></interceptor-ref>
+			<interceptor-ref name="strutsInterceptor"></interceptor-ref>
+		</action>
+		
+		<!-- 客户拜访模块 -->
+		<action name="visit_*" class="visitAction" method="{1}">
+			<result name="initAddUI">/jsp/visit/add.jsp</result>
+			<result name="findByPage">/jsp/visit/list.jsp</result>
+			<result name="save" type="redirectAction">visit_findByPage.action</result>
+			<interceptor-ref name="userInteceptor"></interceptor-ref>
+			<interceptor-ref name="strutsInterceptor"></interceptor-ref>
+		</action>
+		
+		<!-- 统计模块 -->
+		<action name="total_*" class="totalAction" method="{1}">
+			<result name="findSource">/jsp/totals/sources.jsp</result>
+			<result name="findIndustry">/jsp/totals/vocations.jsp</result>
+			<interceptor-ref name="userInteceptor"></interceptor-ref>
+			<interceptor-ref name="strutsInterceptor"></interceptor-ref>
+		</action>
+	</package>
+</struts>

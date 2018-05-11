@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.crm_ssh02.domain.Customer" table="cst_customer">
+		<id name="cust_id" column="cust_id">
+			<generator class="native"/>
+		</id>
+		<property name="cust_name" column="cust_name"/>
+		<property name="cust_user_id" column="cust_user_id"/>
+		<property name="cust_create_id" column="cust_create_id"/>
+		<property name="cust_linkman" column="cust_linkman"/>
+		<property name="cust_phone" column="cust_phone"/>
+		<property name="cust_mobile" column="cust_mobile"/>
+		<property name="cust_file_path" column="cust_file_path"/>
+		<property name="cust_address" column="cust_address"/>
+		<property name="cust_zip" column="cust_zip"/>
+		
+		
+		<!-- 与字典表关联，但是单方面维护，即由多方客户来维护 -->
+		<many-to-one name="source" class="com.crm_ssh02.domain.Dict" column="cust_source"/>
+		<many-to-one name="industry" class="com.crm_ssh02.domain.Dict" column="cust_industry" />
+		<many-to-one name="level" class="com.crm_ssh02.domain.Dict" column="cust_level" />
+		
+		<!-- 配置一对多的一方，放弃外键维护 -->
+		<set name="linkmans" inverse="true">
+			<key column="lkm_cust_id"/>
+			<one-to-many class="com.crm_ssh02.domain.Linkman"/>
+		</set>
+	</class>
+</hibernate-mapping>
+

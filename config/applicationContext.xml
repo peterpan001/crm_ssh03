@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<!-- 加载数据库配置文件 -->
+	<context:property-placeholder location="classpath:db.properties"/>
+	
+	<!-- 配置C3P0连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driver}"/>
+		<property name="jdbcUrl" value="${jdbc.url}"/>
+		<property name="user" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+	</bean>
+	
+	<!-- 配置加载Hibernate的核心配置文件 -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<!-- 加载连接池 -->
+		<property name="dataSource" ref="dataSource"/>
+		
+		<!-- 配置可选参数 -->
+		<property name="hibernateProperties">
+			<props>
+				<!-- 数据库方言 -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<!-- 显示sql语句 -->
+				<prop key="hibernate.show_sql">true</prop>
+				<!-- 格式化sql语句 -->
+				<prop key="hibernate.format_sql">true</prop>
+				<!-- 数据库更新机制 -->
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		
+		<!-- 引入持久化类的资源映射文件 -->
+		<property name="mappingResources">
+			<list>
+				<value>com/crm_ssh02/domain/Customer.hbm.xml</value>
+				<value>com/crm_ssh02/domain/Dict.hbm.xml</value>
+				<value>com/crm_ssh02/domain/Linkman.hbm.xml</value>
+				<value>com/crm_ssh02/domain/User.hbm.xml</value>
+				<value>com/crm_ssh02/domain/Visit.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 配置事务管理器平台 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<!-- 开启事务注解 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<!-- 用户模块 -->
+	<bean id="userAction" class="com.crm_ssh02.web.action.UserAction" scope="prototype">
+		<property name="userService" ref="userService"/>
+	</bean>
+	<bean id="userService" class="com.crm_ssh02.service.UserServiceImpl">
+		<property name="userDao" ref="userDao"/>
+	</bean>
+	<bean id="userDao" class="com.crm_ssh02.dao.UserDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<!-- 字典模块 -->
+	<bean id="dictAction" class="com.crm_ssh02.web.action.DictAction" scope="prototype">
+		<property name="dictService" ref="dictService"/>
+	</bean>
+	<bean id="dictService" class="com.crm_ssh02.service.DictServiceImpl">
+		<property name="dictDao" ref="dictDao"/>
+	</bean>
+	<bean id="dictDao" class="com.crm_ssh02.dao.DictDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<!-- 客户模块 -->
+	<bean id="customerAction" class="com.crm_ssh02.web.action.CustomerAction" scope="prototype">
+		<property name="customerService" ref="customerService"/>
+	</bean>
+	<bean id="customerService" class="com.crm_ssh02.service.CustomerServiceImpl">
+		<property name="customerDao" ref="customerDao"/>
+	</bean>
+	<bean id="customerDao" class="com.crm_ssh02.dao.CustomerDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<!-- 联系人模块 -->
+	<bean id="linkmanAction" class="com.crm_ssh02.web.action.LinkmanAction" scope="prototype">
+		<property name="linkmanService" ref="linkmanService"/>
+	</bean>
+	<bean id="linkmanService" class="com.crm_ssh02.service.LinkmanServiceImpl">
+		<property name="linkmanDao" ref="linkmanDao"/>
+		<property name="customerDao" ref="customerDao"/>
+	</bean>
+	<bean id="linkmanDao" class="com.crm_ssh02.dao.LinkmanDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<!-- 客户拜访,统计模块进行注解扫描 -->
+	<context:component-scan base-package="com.crm_ssh02"/>
+	
+</beans>
